@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: spendsmart
+    runtime: python
+    buildCommand: python -m pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    healthCheckPath: /login
+    envVars:
+      - key: SPENDSMART_SECRET_KEY
+        generateValue: true
+      - key: SPENDSMART_DATABASE
+        value: /var/data/database.db
+      - key: HTTPS_ONLY
+        value: "1"
+    disk:
+      name: spendsmart-data
+      mountPath: /var/data
+      sizeGB: 1

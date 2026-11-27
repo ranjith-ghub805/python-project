@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if record else 'Add' }} transaction{% endblock %}
+{% block breadcrumb %}{{ 'Edit transaction' if record else 'Add transaction' }}{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">KEEP YOUR RECORDS CURRENT</div><h1>{{ 'Edit transaction' if record else 'Add a transaction' }}</h1><p>{{ 'Update the details below.' if record else 'A quick note today makes better insights tomorrow.' }}</p></div></div>
+<div class="form-page-grid"><section class="card transaction-form-card"><form method="post" class="form-stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>Transaction type<div class="type-switch"><label><input type="radio" name="kind" value="expense" {{ 'checked' if (record and record.kind == 'expense') or (not record and initial_kind == 'expense') }}><span>↗&nbsp; Expense</span></label><label><input type="radio" name="kind" value="income" {{ 'checked' if (record and record.kind == 'income') or (not record and initial_kind == 'income') }}><span>↙&nbsp; Income</span></label></div></label>
+  <div class="form-row"><label>Category<select name="category" id="categorySelect" required>{% for category in expense_categories %}<option data-kind="expense" {{ 'selected' if record and record.category == category }}>{{ category }}</option>{% endfor %}{% for category in income_categories %}<option data-kind="income" {{ 'selected' if record and record.category == category }}>{{ category }}</option>{% endfor %}</select></label><label>Amount<input type="number" name="amount" min="0.01" max="1000000000" step="0.01" placeholder="0.00" required value="{{ record.amount if record else '' }}"></label></div>
+  <label>Date<input type="date" name="transaction_date" value="{{ record.transaction_date if record else today }}" required></label>
+  <label>Description <span class="optional">(optional)</span><textarea name="description" rows="3" maxlength="240" placeholder="Add a note to remember what this was for…">{{ record.description if record else '' }}</textarea></label>
+  <div class="form-actions"><a class="btn btn-subtle" href="{{ url_for('transactions') }}">Cancel</a><button class="btn btn-primary" type="submit">{{ 'Save changes' if record else 'Save transaction' }} <span>→</span></button></div>
+</form></section><aside class="form-side-note"><div class="note-orb">✦</div><h3>Good records, better choices.</h3><p>Logging purchases as they happen gives you a clearer picture of where your money goes.</p><div class="note-divider"></div><small>TIP</small><p>Descriptions are optional, but a quick note can help you remember the context later.</p></aside></div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Transactions{% endblock %}
+{% block breadcrumb %}Transactions{% endblock %}
+{% block content %}
+<div class="page-heading heading-row"><div><div class="eyebrow">YOUR MONEY, ORGANIZED</div><h1>Transactions</h1><p>Every inflow and outflow, all in one place.</p></div><a class="btn btn-primary" href="{{ url_for('add_transaction') }}">＋ Add transaction</a></div>
+<section class="card transactions-card">
+  <form class="filter-bar" method="get"><div class="search-input"><span>⌕</span><input name="q" value="{{ filters.q }}" placeholder="Search category or description"></div>
+    <select name="kind"><option value="">All types</option><option value="income" {{ 'selected' if filters.kind == 'income' }}>Income</option><option value="expense" {{ 'selected' if filters.kind == 'expense' }}>Expense</option></select>
+    <select name="category"><option value="">All categories</option><optgroup label="Expenses">{% for cat in expense_categories %}<option {{ 'selected' if filters.category == cat }}>{{ cat }}</option>{% endfor %}</optgroup><optgroup label="Income">{% for cat in income_categories %}<option {{ 'selected' if filters.category == cat }}>{{ cat }}</option>{% endfor %}</optgroup></select>
+    <input type="date" name="start" value="{{ filters.start }}" aria-label="From date"><input type="date" name="end" value="{{ filters.end }}" aria-label="To date"><button class="btn btn-subtle" type="submit">Filter</button>
+    {% if filters.q or filters.kind or filters.category or filters.start or filters.end %}<a class="clear-filter" href="{{ url_for('transactions') }}">Clear</a>{% endif %}
+  </form>
+  {% if records %}<div class="table-wrap"><table class="data-table transaction-table"><thead><tr><th>TRANSACTION</th><th>TYPE</th><th>DATE</th><th>AMOUNT</th><th class="align-right">ACTIONS</th></tr></thead><tbody>{% for tx in records %}<tr><td><span class="tx-cell"><i class="tx-icon {{ tx.kind }}">{{ "↙" if tx.kind == "income" else "↗" }}</i><span><strong>{{ tx.category }}</strong><small>{{ tx.description or "No description" }}</small></span></span></td><td><span class="type-pill {{ tx.kind }}">{{ tx.kind|title }}</span></td><td>{{ tx.transaction_date }}</td><td class="{{ 'amount-income' if tx.kind == 'income' else 'amount-expense' }}">{{ "+" if tx.kind == "income" else "−" }}{{ tx.amount|currency }}</td><td class="align-right"><div class="row-actions"><a href="{{ url_for('edit_transaction', transaction_id=tx.id) }}" title="Edit">✎</a><form method="post" action="{{ url_for('delete_transaction', transaction_id=tx.id) }}" data-confirm="Delete this transaction?"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button title="Delete" type="submit">×</button></form></div></td></tr>{% endfor %}</tbody></table></div>
+  {% else %}<div class="empty-state"><div class="empty-illustration">⇄</div><h3>No transactions found</h3><p>{% if filters.q or filters.kind or filters.category or filters.start or filters.end %}Try adjusting your filters, or record a new transaction.{% else %}Your financial story starts with your first entry.{% endif %}</p><a class="btn btn-primary" href="{{ url_for('add_transaction') }}">＋ Add transaction</a></div>{% endif %}
+  <div class="table-foot">{{ records|length }} transaction{{ '' if records|length == 1 else 's' }}</div>
+</section>
+{% endblock %}
